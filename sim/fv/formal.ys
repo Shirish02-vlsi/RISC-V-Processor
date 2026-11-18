@@ -1,0 +1,41 @@
+# ============================================================================
+# formal.ys - Yosys Formal Verification Script for RV32I Pipeline
+# ============================================================================
+# Runs BMC and temporal induction
+# ============================================================================
+
+# Read all RTL files
+read_verilog -sv ../../rtl/alu.sv
+read_verilog -sv ../../rtl/rf.sv
+read_verilog -sv ../../rtl/ctrl.sv
+read_verilog -sv ../../rtl/imm_gen.sv
+read_verilog -sv ../../rtl/pc.sv
+read_verilog -sv ../../rtl/alu_ctrl.sv
+read_verilog -sv ../../rtl/forward_unit.sv
+read_verilog -sv ../../rtl/hazard_unit.sv
+read_verilog -sv ../../rtl/rv32i.sv
+read_verilog -sv ../../rtl/rv32i_fv.sv
+
+# Set top module for formal
+hierarchy -top rv32i_fv
+
+# Prepare design for formal
+proc
+opt
+memory
+flatten
+
+# Formal preparation
+formalff
+chformal -set rv32i_fv.dut.rst_n init
+chformal -set rv32i_fv.dut.clk clk
+
+# Run BMC (bounded model checking) - 20 cycles
+write_smt2 -wires rv32i_fv.smt2
+shell "yosys-smtbmc -t 20 -f rv32i_fv.smt2 2>&1 | tee bmc_20.log"
+
+# Run temporal induction - 10 cycles
+shell "yosys-smtbmc -i -t 10 -f rv32i_fv.smt2 2>&1 | tee induction_10.log"
+
+# Run cover analysis
+shell "yosys-smtbmc -c -t 20 -f rv32i_fv.smt2 2>&1 | tee cover_20.log"

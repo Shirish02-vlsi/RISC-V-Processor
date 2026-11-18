@@ -31,6 +31,10 @@ module rv32i_pipe_tb;
     initial begin
         $dumpfile("sim/waveform.vcd");
         $dumpvars(0, rv32i_pipe_tb);
+        // Dump individual RF registers for waveform visibility
+        for (int i = 0; i < 32; i++) begin
+            $dumpvars(0, dut.rf_inst.registers[i]);
+        end
 
         $display("=== 5-Stage Pipeline Testbench Starting ===");
 
