@@ -1,0 +1,17 @@
+# Compiled simulation files
+sim/*.vvp
+sim/*.vcd
+
+# Temporary files
+*.tmp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
