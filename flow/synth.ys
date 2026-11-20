@@ -1,0 +1,38 @@
+# Yosys Synthesis Script for RV32I Processor
+# Target: Generic ASIC flow (can be adapted for specific PDK)
+
+# Read all RTL files (from project root)
+read_verilog -sv ../../rtl/alu.sv
+read_verilog -sv ../../rtl/alu_ctrl.sv
+read_verilog -sv ../../rtl/ctrl.sv
+read_verilog -sv ../../rtl/forward_unit.sv
+read_verilog -sv ../../rtl/hazard_unit.sv
+read_verilog -sv ../../rtl/imm_gen.sv
+read_verilog -sv ../../rtl/pc.sv
+read_verilog -sv ../../rtl/rf.sv
+read_verilog -sv ../../rtl/rv32i.sv
+
+# Set top module
+hierarchy -check -top rv32i
+
+# Generic synthesis optimizations
+proc
+opt
+fsm
+opt
+memory -nomap
+opt
+
+# Logic optimization with ABC (map to simple gates, preserve DFFs)
+abc -dff -g AND,OR,XOR
+opt
+
+# Clean up
+clean
+
+# Write synthesized netlist
+write_verilog -noattr rv32i_synth.v
+
+# Statistics
+stat
+check
